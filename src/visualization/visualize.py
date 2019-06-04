@@ -27,10 +27,10 @@ def kde_w_mean(series, b, ylabel, figsize=(10,6)):
 	plt.axvline(x=mean,color='red',label='Mean: %.2f' %mean)
 	plt.legend(loc='best')
 
-def my_plot_importance(booster, figsize, **kwargs): 
+def my_plot_importance(booster, figsize, importance_type='weight', **kwargs): 
 	"""
 	Plots feature importance, as documented for xgboost.plot_importance(),
 	with the option to increase figure size.
 	"""
 	fig, ax = plt.subplots(1,1,figsize=figsize)
-	return plot_importance(booster=booster, ax=ax, **kwargs)
+	return plot_importance(booster=booster, ax=ax,importance_type=importance_type, **kwargs)
