@@ -1,7 +1,7 @@
 Admissions_Internship
 ==============================
 
-This is a project with the goal of finding a "critical path" for admitting students to Siena College.
+This is a project with the goal of finding a "critical path" for admitting students to Siena College.   Using machine learning libraries such as XGBoost and sklearn, as well as Shapley values to describe the models in depth, we are hoping to identify the most important factors in order to target students more likely to enroll.
 
 Project Organization
 ------------
