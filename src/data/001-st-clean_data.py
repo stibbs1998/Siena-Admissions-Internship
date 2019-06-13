@@ -6,7 +6,7 @@ warnings.filterwarnings('ignore')
 #################################################################
 #################################################################
 
-
+print("Read in files.")
 ## Read in data files
 
 df = pd.read_csv("../../data/raw/CriticalPath_Data_EM_Confidential.csv")
@@ -36,6 +36,9 @@ df['Enrolled'] = df['Enrolled'].fillna(False)
 
 df = df[(df['Application_Type']!='AM') & (df['Application_Type']!='HE')]
 
+print("Write to file.")
+## Read in data files
+df.to_csv('../../data/processed/CriticalPath_Data_EM_Confidential_lessNoise.csv')
 #################################################################
 #################################################################
 
@@ -53,6 +56,7 @@ df = df.drop(columns=['Tuition_waivers_and_exchanges','Outside_aid','Athletic_ba
 #################################################################
 #################################################################
 
+print("Cut out columns.")
 # Make all columns begining with "Ints" a T/F
 
 for col in df.columns.values:
@@ -69,6 +73,7 @@ df = df[df.columns.values[df.count()>3000]]
 #################################################################
 #################################################################
 
+print("One-hot-encode columns.")
 # One hot-encode the following columns:
 
 # 'Dorm_or_commuter_student'
@@ -82,7 +87,18 @@ df[['AD','BD','SD']] = pd.get_dummies(df['CollegeCode'])
 
 # 'HD_Academic_Rating'
 
-df[['AR1','AR1B','AR2','AR3','AR4','AR5']] = pd.get_dummies(df['HD_Academic_Rating']).drop(columns=['7','722','ARX'])
+df['HD_Academic_Rating'] = df['HD_Academic_Rating'].map(
+            {
+                7:np.nan,
+                722:np.nan,
+                "AR1":1,
+                "AR1B":1,
+                "AR2":2,
+                "AR3":3,
+                "AR4":4,
+                "AR5":5,
+                "ARX":0
+            })
 
 # 'Ethnicity'
 
@@ -95,7 +111,7 @@ df[['IndAlaskNat','Asian','BlackAfAmerican',
 
 # Drop the original columns that we just one hot-encoded
 
-df = df.drop(columns=['Dorm_or_commuter_student','CollegeCode','HD_Academic_Rating','Ethnicity'])
+df = df.drop(columns=['Dorm_or_commuter_student','CollegeCode','Ethnicity'])
 
 df = df.drop(columns='Unknown').rename(columns={"Multiple":"Multiple_races"})
 
@@ -120,6 +136,15 @@ df['Legacy'] = ~df['Legacy'].isnull().astype(int) + 2  # any legacy student is a
 #################################################################
 #################################################################
 
+# Make NaN values for campus visits 0's
+
+df['Number_of_campus_visits'] = df['Number_of_campus_visits'].fillna(0) 
+
+#################################################################
+#################################################################
+
+
+print("Write to file.")
 # Write file to .csv 
 
 df.to_csv('../../data/interim/Third_order_clean_confidential.csv')
