@@ -36,28 +36,34 @@ df['Enrolled'] = df['Enrolled'].fillna(False)
 
 df = df[(df['Application_Type']!='AM') & (df['Application_Type']!='HE')]
 
+#################################################################
+#################################################################
+
+# Write the DataFrame to a .csv file.
+
 print("Write to file.")
-## Read in data files
+
 df.to_csv('../../data/processed/CriticalPath_Data_EM_Confidential_lessNoise.csv')
-#################################################################
-#################################################################
-
-# ## Columns to dump as said by Ned:
-# * tuition_waiver...
-# * outside_aid - not aquired till late in the process
-# * athletic_based_inst_aid
-# * internal_academic_rating
 
 #################################################################
 #################################################################
+
+# The following columns should be dropped immediately as instructed by Admissions.
+
+# While the code below should eliminate these columns anyway, it was so important to
+# remove these columns from the DataFrame that I did so here.
 
 df = df.drop(columns=['Tuition_waivers_and_exchanges','Outside_aid','Athletic_based_inst_aid','Internal_Academic_rating'])
 
 #################################################################
 #################################################################
 
-print("Cut out columns.")
 # Make all columns begining with "Ints" a T/F
+
+# Anyone who was truly interested in one of these programs
+# would've taken the time to check off yes on the application.
+
+print("Cut out columns.")
 
 for col in df.columns.values:
     if col.startswith("Ints"):
@@ -66,7 +72,11 @@ for col in df.columns.values:
 #################################################################
 #################################################################
 
-# Remove all columns with less than 3000 entry points.  These are almost all collected after enrollment has occured
+# Remove all columns with less than 3000 entry points.  
+
+# These are almost all collected after enrollment has occured
+# and there is not enough data present to draw any meaningful
+# results from.
 
 df = df[df.columns.values[df.count()>3000]]
 
@@ -74,18 +84,24 @@ df = df[df.columns.values[df.count()>3000]]
 #################################################################
 
 print("One-hot-encode columns.")
+
 # One hot-encode the following columns:
 
-# 'Dorm_or_commuter_student'
+### 'Dorm_or_commuter_student'
 
 df['COMM'] = pd.get_dummies(df['Dorm_or_commuter_student'])['COMM']
 df['RESD'] = pd.get_dummies(df['Dorm_or_commuter_student'])['RESD']
 
-# 'CollegeCode'
+### 'CollegeCode'
 
 df[['AD','BD','SD']] = pd.get_dummies(df['CollegeCode'])
 
-# 'HD_Academic_Rating'
+### 'Ethnicity'
+
+df[['IndAlaskNat','Asian','BlackAfAmerican',
+    'HispLatino','Multiple','NatHawaiiPacific','Non-ResidentAlien','Unknown','White']] = pd.get_dummies(df['Ethnicity'])
+
+# Reassign ordinal variables for 'HD_Academic_Rating'.
 
 df['HD_Academic_Rating'] = df['HD_Academic_Rating'].map(
             {
@@ -100,27 +116,25 @@ df['HD_Academic_Rating'] = df['HD_Academic_Rating'].map(
                 "ARX":0
             })
 
-# 'Ethnicity'
-
-df[['IndAlaskNat','Asian','BlackAfAmerican',
-    'HispLatino','Multiple','NatHawaiiPacific','Non-ResidentAlien','Unknown','White']] = pd.get_dummies(df['Ethnicity'])
-
 #################################################################
 #################################################################
 
-
-# Drop the original columns that we just one hot-encoded
+# Drop the original columns that we just one hot-encoded as they
+# are no longer needed for the DataFrame.
 
 df = df.drop(columns=['Dorm_or_commuter_student','CollegeCode','Ethnicity'])
+
+#################################################################
+#################################################################
+
+# Drop the unknown races column, and rename "Multiple" for clarity purposes.
 
 df = df.drop(columns='Unknown').rename(columns={"Multiple":"Multiple_races"})
 
 #################################################################
 #################################################################
 
-# Drop these columns as they repeat information from other columns
-
-df =  df.drop(columns=['Admission_status','HS_Numeric_rank'])
+# Test_Optional should be made into a T/F column.
 
 df['Test_Optional'] = df['Test_Optional'].map({'TOPT':True})
 df['Test_Optional'] = df['Test_Optional'].fillna(False)
@@ -131,21 +145,25 @@ df['Test_Optional'] = df['Test_Optional'].fillna(False)
 
 # Re-organize the 'Legacy' column
 
-df['Legacy'] = ~df['Legacy'].isnull().astype(int) + 2  # any legacy student is assigned a 1, otherwise a 0
+### Any non NaN value means that there is some sort of 'legacy' for the student to follow here.
+### A potential legacy student is assigned a '1', and non-legacy students are assigned a '0'.
+
+df['Legacy'] = ~df['Legacy'].isnull().astype(int) + 2   
 
 #################################################################
 #################################################################
 
-# Make NaN values for campus visits 0's
+# Make the NaN values for campus visits 0's, as someone who
+# has no visits to campus is logged as a NaN.
 
 df['Number_of_campus_visits'] = df['Number_of_campus_visits'].fillna(0) 
 
 #################################################################
 #################################################################
 
+# Write the DataFrame to a .csv file.
 
 print("Write to file.")
-# Write file to .csv 
 
 df.to_csv('../../data/interim/Third_order_clean_confidential.csv')
 
