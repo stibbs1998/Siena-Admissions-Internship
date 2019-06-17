@@ -5,7 +5,7 @@ import seaborn as sns
 from xgboost import plot_importance
 from matplotlib.ticker import FormatStrFormatter
 
-def kde_w_mean(series, b, ylabel, figsize=(10,6)):
+def kde_w_mean(series, b, ylabel, figsize=(10,6),**kwargs_dist):
 
 	"""
 
@@ -21,12 +21,14 @@ def kde_w_mean(series, b, ylabel, figsize=(10,6)):
 
 	# figsize (float,float): Tuple (width,height) for figure size, default of (10,6).
 
+	# kwargs_dist (dict): Other keyword arguments for sns.distplot().
+
 	"""
 	start = series.min()
 	end = series.max()
 	mean = series.mean()
 	step = (end-start)/5
-	sns.distplot(series,bins=b,kde=False)
+	sns.distplot(series,bins=b,kde=False,**kwargs)
 	plt.xticks(np.arange(0,end,step).astype(int))
 	plt.ylabel(ylabel)
 	ax2 = plt.twinx()
