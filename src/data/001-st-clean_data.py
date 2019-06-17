@@ -115,7 +115,9 @@ df[['IndAlaskNat','Asian','BlackAfAmerican',
 
 ### 'Admission_status'
 
-df[['Accepted','Applied','Enrolled']] = pd.get_dummies(df['Admission_status'])
+df[['Accepted','Applied','EnrStatus']] = pd.get_dummies(df['Admission_status'])
+
+df = df.drop(columns='EnrStatus')
 
 #################################################################
 #################################################################
