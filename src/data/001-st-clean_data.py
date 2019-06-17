@@ -39,6 +39,18 @@ df = df[(df['Application_Type']!='AM') & (df['Application_Type']!='HE')]
 #################################################################
 #################################################################
 
+# Re-write Admission_status as three columns: Applied, Accepted, Enrolled.
+
+mapper = {70: "Accepted", 80: "Enrolled"}
+for status in df['Admission_status'].unique():
+    if status!=70 and status!=80:
+        mapper[status] = "Applied"
+        
+df['Admission_status'] = df['Admission_status'].map(mapper)
+
+#################################################################
+#################################################################
+
 # Write the DataFrame to a .csv file.
 
 print("Write to file.")
@@ -101,6 +113,13 @@ df[['AD','BD','SD']] = pd.get_dummies(df['CollegeCode'])
 df[['IndAlaskNat','Asian','BlackAfAmerican',
     'HispLatino','Multiple','NatHawaiiPacific','Non-ResidentAlien','Unknown','White']] = pd.get_dummies(df['Ethnicity'])
 
+### 'Admission_status'
+
+df[['Accepted','Applied','Enrolled']] = pd.get_dummies(df['Admission_status'])
+
+#################################################################
+#################################################################
+
 # Reassign ordinal variables for 'HD_Academic_Rating'.
 
 df['HD_Academic_Rating'] = df['HD_Academic_Rating'].map(
@@ -122,7 +141,7 @@ df['HD_Academic_Rating'] = df['HD_Academic_Rating'].map(
 # Drop the original columns that we just one hot-encoded as they
 # are no longer needed for the DataFrame.
 
-df = df.drop(columns=['Dorm_or_commuter_student','CollegeCode','Ethnicity'])
+df = df.drop(columns=['Dorm_or_commuter_student','CollegeCode','Ethnicity','Admission_status'])
 
 #################################################################
 #################################################################
