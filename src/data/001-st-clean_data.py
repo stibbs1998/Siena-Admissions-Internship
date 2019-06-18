@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pickle as pkl
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -50,6 +51,38 @@ df['Admission_status'] = df['Admission_status'].map(mapper)
 
 #################################################################
 #################################################################
+
+# Calculate the distance to Siena College for each applicant.
+
+_zipDF = pd.DataFrame.from_dict(pkl.load(open('../../data/processed/CARES_zipcode_data_v3.pkl','rb'))[2])
+long_latsDF = pd.merge(df,_zipDF,how='left',left_on=['City_perm_res','State_perm_res'],right_on=['MixedCity','StateCode'])
+long_latsDF = long_latsDF.drop_duplicates(subset='Unique_student_ID').reset_index()
+long_latsDF = long_latsDF.drop(columns='index')
+
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6372.8  # Earth radius in kilometers
+    dLat = np.deg2rad(lat2 - lat1)
+    dLon = np.deg2rad(lon2 - lon1)
+    lat1 = np.deg2rad(lat1)
+    lat2 = np.deg2rad(lat2)
+    a = np.sin(dLat / 2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dLon / 2)**2
+    c = 2 * np.arcsin(np.sqrt(a))
+    return R * c
+
+siena_lat, siena_long = (42.71833,-73.7533)  # The coordinates of Siena Hall
+
+long_latsDF['Dist_to_Siena'] = haversine(siena_lat,siena_long,long_latsDF['Latitude'],long_latsDF['Longitude'])*0.6213 # 0.6213 converts km to miles
+
+mapper = dict(zip(long_latsDF['Unique_student_ID'],long_latsDF['Dist_to_Siena']))
+
+# Map the distances back to the original DataFrame 
+
+df['Dist_to_Siena'] = np.copy(df['Unique_student_ID'])
+df['Dist_to_Siena'] = df['Dist_to_Siena'].map(mapper)
+
+#################################################################
+#################################################################
+
 
 # Write the DataFrame to a .csv file.
 
