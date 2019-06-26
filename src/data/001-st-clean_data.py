@@ -52,19 +52,13 @@ df['Admission_status'] = df['Admission_status'].map(mapper)
 #################################################################
 #################################################################
 
-# Calculate the distance to Siena College for each applicant, as well as to their college of choice where applicable.
+# Calculate the distance to Siena College for each applicant from their home city.
 
-_zipDF = pd.DataFrame.from_dict(pkl.load(open('../../data/processed/CARES_zipcode_data_v3.pkl','rb'))[2]).drop_duplicates(subset=['City','StateCode'])
+_zipDF = pd.DataFrame.from_dict(pkl.load(open('../../data/external/CARES_zipcode_data_v3.pkl','rb'))[2]).drop_duplicates(subset=['City','StateCode'])
 
 long_latsDF = pd.merge(df,_zipDF,how='left',left_on=['City_perm_res','State_perm_res'],right_on=['MixedCity','StateCode'])
 long_latsDF = long_latsDF.drop_duplicates(subset='Unique_student_ID').reset_index()
 long_latsDF = long_latsDF.drop(columns='index')
-
-school_long_lats = pd.read_csv('../../data/processed/colleges_long_lat.csv') # Other colleges Long/Lats
-
-long_latsDF['Ccbnm-Long'] = long_latsDF['College_chosen_by_non-matrics'].map(dict(zip(school_long_lats['LocationName'],school_long_lats['Longitude']))) # Map Longitude Coords
-
-long_latsDF['Ccbnm-Lat'] = long_latsDF['College_chosen_by_non-matrics'].map(dict(zip(school_long_lats['LocationName'],school_long_lats['Latitude']))) # Map Latitude Coords
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6372.8  # Earth radius in kilometers
@@ -81,22 +75,47 @@ siena_lat, siena_long = (42.71833,-73.7533)  # The coordinates of Siena Hall
 # Distance to Siena
 long_latsDF['Dist_to_Siena'] = haversine(siena_lat,siena_long,long_latsDF['Latitude'],long_latsDF['Longitude'])*0.6213 # 0.6213 converts km to miles
 
-# Distance to other school.
-long_latsDF['Dist_to_Ccbnm'] = haversine(long_latsDF['Ccbnm-Lat'],long_latsDF['Ccbnm-Long'],long_latsDF['Latitude'],long_latsDF['Longitude'])*0.6213 # 0.6213 converts km to miles
-
-
 mapper_siena = dict(zip(long_latsDF['Unique_student_ID'],long_latsDF['Dist_to_Siena']))
-mapper_ccbnm= dict(zip(long_latsDF['Unique_student_ID'],long_latsDF['Dist_to_Ccbnm']))
 
 # Map the distances back to the original DataFrame 
 
 df['Dist_to_Siena'] = np.copy(df['Unique_student_ID'])
 df['Dist_to_Siena'] = df['Dist_to_Siena'].map(mapper_siena)
 
-df['Dist_to_Ccbnm'] = np.copy(df['Unique_student_ID'])
-df['Dist_to_Ccbnm'] = df['Dist_to_Ccbnm'].map(mapper_ccbnm)
+#################################################################
+#################################################################
+
+# Now do this for the distance to other schools attended.
 
 
+hd2017_df = pd.read_csv('../../data/external/hd2017.csv',encoding='ISO-8859-1')
+
+# Convert all of the school names to UPPER CASE.  
+
+hd2017_df['INSTNM'] = hd2017_df['INSTNM'].str.upper()
+
+long_latsDF = pd.merge(df,_zipDF,how='left',left_on=['City_perm_res','State_perm_res'],right_on=['MixedCity','StateCode'])
+long_latsDF = long_latsDF.drop_duplicates(subset='Unique_student_ID').reset_index()
+long_latsDF = long_latsDF.drop(columns='index')
+
+name_mapper = pd.read_csv('../../data/processed/college_name_mapper.csv')
+
+long_latsDF['ccbnm_for_dist'] = long_latsDF['College_chosen_by_non-matrics'].map(dict(zip(name_mapper['CCBNM'],name_mapper['DAPIP'])))
+
+new_df = pd.merge(long_latsDF,hd2017_df[['INSTNM','LONGITUD','LATITUDE']],how='left',left_on='ccbnm_for_dist',right_on='INSTNM')
+
+new_df['Dist2ccbnm'] = haversine(new_df['LATITUDE'],new_df['LONGITUD'],new_df['Latitude'],new_df['Longitude'])*0.6213
+
+# Map the distances back to the original DataFrame.
+mapper_ccbnm = dict(zip(new_df.Unique_student_ID,new_df.Dist2ccbnm))
+mapper_ccbnm_names = dict(zip(new_df.Unique_student_ID,new_df.ccbnm_for_dist))
+mapper_ccbnm_lat = dict(zip(new_df.Unique_student_ID,new_df.LATITUDE)) 
+mapper_ccbnm_long =  dict(zip(new_df.Unique_student_ID,new_df.LONGITUD))
+
+df['Dist_to_Ccbnm'] = df['Unique_student_ID'].map(mapper_ccbnm)
+df['ccbnm_for_dist'] = df['Unique_student_ID'].map(mapper_ccbnm_names)
+df['ccbnm_lat'] = df['Unique_student_ID'].map(mapper_ccbnm_lat)
+df['ccbnm_long'] = df['Unique_student_ID'].map(mapper_ccbnm_long)
 #################################################################
 #################################################################
 
