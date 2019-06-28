@@ -5,7 +5,7 @@ import seaborn as sns
 from xgboost import plot_importance
 from matplotlib.ticker import FormatStrFormatter
 
-def kde_w_mean(series, b, ylabel, figsize=(10,6),**kwargs_dist):
+def kde_w_mean(series, b, ylabel, figsize=(10,6),**kwargs):
 
 	"""
 
