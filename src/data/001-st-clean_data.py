@@ -181,11 +181,6 @@ df[['AD','BD','SD']] = pd.get_dummies(df['CollegeCode'])
 df[['IndAlaskNat','Asian','BlackAfAmerican',
     'HispLatino','Multiple','NatHawaiiPacific','Non-ResidentAlien','Unknown','White']] = pd.get_dummies(df['Ethnicity'])
 
-### 'Admission_status'
-
-df[['Accepted','Applied','EnrStatus']] = pd.get_dummies(df['Admission_status'])
-
-df = df.drop(columns='EnrStatus')
 
 #################################################################
 #################################################################
@@ -211,7 +206,7 @@ df['HD_Academic_Rating'] = df['HD_Academic_Rating'].map(
 # Drop the original columns that we just one hot-encoded as they
 # are no longer needed for the DataFrame.
 
-df = df.drop(columns=['Dorm_or_commuter_student','CollegeCode','Ethnicity','Admission_status'])
+df = df.drop(columns=['Dorm_or_commuter_student','CollegeCode','Ethnicity'])
 
 #################################################################
 #################################################################
