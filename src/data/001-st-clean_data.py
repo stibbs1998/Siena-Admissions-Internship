@@ -100,22 +100,26 @@ long_latsDF = long_latsDF.drop(columns='index')
 
 name_mapper = pd.read_csv('../../data/processed/college_name_mapper.csv')
 
-long_latsDF['ccbnm_for_dist'] = long_latsDF['College_chosen_by_non-matrics'].map(dict(zip(name_mapper['CCBNM'],name_mapper['DAPIP'])))
+long_latsDF['Ccbnm_for_dist'] = long_latsDF['College_chosen_by_non-matrics'].map(dict(zip(name_mapper['CCBNM'],name_mapper['DAPIP'])))
 
-new_df = pd.merge(long_latsDF,hd2017_df[['INSTNM','LONGITUD','LATITUDE']],how='left',left_on='ccbnm_for_dist',right_on='INSTNM')
+new_df = pd.merge(long_latsDF,hd2017_df[['INSTNM','LONGITUD','LATITUDE']],how='left',left_on='Ccbnm_for_dist',right_on='INSTNM')
 
-new_df['Dist2ccbnm'] = haversine(new_df['LATITUDE'],new_df['LONGITUD'],new_df['Latitude'],new_df['Longitude'])*0.6213
+new_df['Dist2Ccbnm'] = haversine(new_df['LATITUDE'],new_df['LONGITUD'],new_df['Latitude'],new_df['Longitude'])*0.6213
 
 # Map the distances back to the original DataFrame.
-mapper_ccbnm = dict(zip(new_df.Unique_student_ID,new_df.Dist2ccbnm))
-mapper_ccbnm_names = dict(zip(new_df.Unique_student_ID,new_df.ccbnm_for_dist))
-mapper_ccbnm_lat = dict(zip(new_df.Unique_student_ID,new_df.LATITUDE)) 
-mapper_ccbnm_long =  dict(zip(new_df.Unique_student_ID,new_df.LONGITUD))
+mapper_Ccbnm = dict(zip(new_df.Unique_student_ID,new_df.Dist2Ccbnm))
+mapper_Ccbnm_names = dict(zip(new_df.Unique_student_ID,new_df.Ccbnm_for_dist))
+mapper_Ccbnm_lat = dict(zip(new_df.Unique_student_ID,new_df.LATITUDE)) 
+mapper_Ccbnm_long =  dict(zip(new_df.Unique_student_ID,new_df.LONGITUD))
+mapper_long = dict(zip(new_df.Unique_student_ID,new_df.Longitude))   
+mapper_lat = dict(zip(new_df.Unique_student_ID,new_df.Latitude))
 
-df['Dist_to_Ccbnm'] = df['Unique_student_ID'].map(mapper_ccbnm)
-df['ccbnm_for_dist'] = df['Unique_student_ID'].map(mapper_ccbnm_names)
-df['ccbnm_lat'] = df['Unique_student_ID'].map(mapper_ccbnm_lat)
-df['ccbnm_long'] = df['Unique_student_ID'].map(mapper_ccbnm_long)
+df['Dist_to_Ccbnm'] = df['Unique_student_ID'].map(mapper_Ccbnm)
+df['Ccbnm_for_dist'] = df['Unique_student_ID'].map(mapper_Ccbnm_names)
+df['Ccbnm_lat'] = df['Unique_student_ID'].map(mapper_Ccbnm_lat)
+df['Ccbnm_long'] = df['Unique_student_ID'].map(mapper_Ccbnm_long)
+df['Home_Lat'] = df['Unique_student_ID'].map(mapper_lat)
+df['Home_Long'] = df['Unique_student_ID'].map(mapper_long)
 #################################################################
 #################################################################
 
