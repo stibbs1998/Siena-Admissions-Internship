@@ -3,11 +3,6 @@ Admissions_Internship
 
 This is a project with the goal of finding a "critical path" for admitting students to Siena College.   Using machine learning libraries such as XGBoost and sklearn, as well as Shapley values to describe the models in depth, we are hoping to identify the most important factors in order to target students more likely to enroll.
 
-Interactive Visualizations:
-
-* [Distribution of Distance from Home to College Attended](http://www.sos.siena.edu/~mbellis/College_Map_Histogram.html)
-
-* [Distance to Siena College from Home vs. Distance to College Attended from Siena College](http://www.sos.siena.edu/~mbellis/Dist2Siena_Ccbnm.html)
 
 Project Organization
 ------------
