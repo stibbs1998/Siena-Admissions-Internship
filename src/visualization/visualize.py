@@ -4,6 +4,9 @@ import pandas as pd
 import seaborn as sns
 from xgboost import plot_importance
 from matplotlib.ticker import FormatStrFormatter
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import scale
 
 def kde_w_mean(series, b, ylabel, figsize=(10,6),**kwargs):
 
@@ -60,3 +63,126 @@ def my_plot_importance(booster, figsize=(10,6), importance_type='weight', **kwar
 	"""
 	fig, ax = plt.subplots(1,1,figsize=figsize)
 	return plot_importance(booster=booster, ax=ax,importance_type=importance_type, **kwargs)
+
+
+def residual_error(X_train,X_test,y_train,y_test, reg="linear"):
+    
+	"""
+
+	Plot the residual error of the Regresssion model for the input data, 
+	and return the fitted Regression model.
+	-------------------------------------------------------------------
+	# Parameters
+
+	# X_train,X_test,y_train,y_test (np.arrays):  Given X, a 2-D array of Data,
+	and y, an array of target data, we can use:
+
+	sklearn.model_selection.train_test_split(X,y)
+	
+	to obtain X_train, X_test, y_train, and y_test.
+
+	# reg (string): Whether the regression model is linear or logistical (default="linear").
+
+	"""
+
+	if reg.lower() == "linear":
+		reg=LinearRegression()
+		reg.fit(X_train,y_train)
+
+	elif reg.lower() == "logistic":
+		reg=LogisticRegression()
+		reg.fit(X_train,y_train)
+
+	## setting plot style 
+	plt.style.use('fivethirtyeight') 
+
+	## plotting residual errors in training data 
+	plt.scatter(reg.predict(X_train), reg.predict(X_train) - y_train, 
+		color = "green", s = 10, label = 'Train data') 
+
+	## plotting residual errors in test data 
+	plt.scatter(reg.predict(X_test), reg.predict(X_test) - y_test, 
+		color = "blue", s = 10, label = 'Test data') 
+
+	## plotting line for zero residual error 
+	plt.hlines(y = 0, xmin = 0, xmax = 50, linewidth = 2) 
+
+	## plotting legend 
+	plt.legend(loc = 'upper right') 
+
+	## plot title 
+	plt.title("Residual errors") 
+
+	return reg
+
+def plot_explained_variance_ratio(pca):
+
+	"""
+
+	Plot the Scree Plot to Explain the variance
+	of the dataset.
+	-------------------------------------------
+	# Parameters:
+
+	# pca: The sklearn.decomposition.PCA() object
+	to plot variance for.
+
+	"""
+
+	plt.plot(pca.explained_variance_ratio_)
+	plt.xlabel('number of components')
+	plt.ylabel('cumulative explained variance')
+	return 1
+
+
+def pca_results(scaled, pca):
+
+	"""
+
+	Plot the explained variance of the DataSet as a barchart,
+	and return a DataFrame with the explained variance for each
+	feature, for each dimension of the PCA.
+	-----------------------------------------------------------
+	# Parameters:
+
+	# scaled (pd.DataFrame): The DataFrame in which we are performing PCA on, scaled
+	down using sklearn.preprocessing.scale():
+
+	from sklearn.preprocessing import scale
+	scaled = pd.DataFrame(scale(data))
+
+	Where `data` is the original DataFrame.
+
+	# pca: The sklearn.decomposition.PCA() object, which has been fitted to the 
+	scaled down DataFrame:
+
+	pca = PCA(**args).fit(scaled)    
+
+	"""
+
+	# Dimension indexing
+	dimensions = ['Dimension {}'.format(i) for i in range(1,len(pca.components_)+1)]
+
+	# PCA components
+	components = pd.DataFrame(np.round(pca.components_, 4), columns = scaled.keys()) 
+	components.index = dimensions
+
+	# PCA explained variance
+	ratios = pca.explained_variance_ratio_.reshape(len(pca.components_), 1) 
+	variance_ratios = pd.DataFrame(np.round(ratios, 4), columns = ['Explained Variance']) 
+	variance_ratios.index = dimensions
+
+	# Create a bar plot visualization
+	fig, ax = plt.subplots(figsize = (14,8))
+
+	# Plot the feature weights as a function of the components
+	components.plot(ax = ax, kind = 'bar')
+	ax.set_ylabel("Feature Weights") 
+	ax.set_xticklabels(dimensions, rotation=0)
+
+	# Display the explained variance ratios# 
+	for i, ev in enumerate(pca.explained_variance_ratio_): 
+		ax.text(i-0.40, ax.get_ylim()[1] + 0.05, "Explained Variance\n %.4f"%(ev))
+
+	# Return a concatenated DataFrame
+	return pd.concat([variance_ratios, components], axis = 1)
