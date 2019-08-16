@@ -7,7 +7,7 @@ This is a project with the goal of finding a "critical path" for admitting stude
 Project Organization
 ------------
 
-    ├── LICENSE
+    ├── [LICENSE](https://github.com/stibbs1998/admissions_internship/blob/master/LICENSE)
     ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
