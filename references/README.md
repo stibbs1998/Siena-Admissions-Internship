@@ -10,7 +10,7 @@ References
 [Matt Bellis](https://github.com/mattbellis/CARES_tools/blob/master/CARES_zipcode_data_v3.pkl)
  * [CARES_zipcode_data_v3.pkl](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/CARES_zipcode_data_v3.pkl)
 
-[www.mdreducation.com](https://www.mdreducation.com/pdfs/US_FIPS_Codes.xls)
+[MDR](https://www.mdreducation.com)
  * [FIPS.csv](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/FIPS.csv)
 
 [US Census Bureau](https://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml?)
