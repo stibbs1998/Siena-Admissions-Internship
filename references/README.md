@@ -1,7 +1,7 @@
 References
 ==============================
 
-## [Third Party Data Sources](https://github.com/stibbs1998/admissions_internship/tree/master/data/external)
+## [External](https://github.com/stibbs1998/admissions_internship/tree/master/data/external) Data Sources
 
 [hd2017.csv](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/hd2017.csv) and [InstitutionCampus.csv](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/InstitutionCampus.csv) files were downloaded from [Database of Accredited Postesecondary Instituions and Programs](https://ope.ed.gov/dapip/#/home).
 
