@@ -15,6 +15,12 @@ References
 
 [US Census Bureau](https://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml?)
  * [income_data.csv](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/income_data.csv)
+ * [aff_download_readme_ann.txt](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/aff_download_readme_ann.txt)
+ * [ACS_17_5YR_DP05.txt](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/ACS_17_5YR_DP05.txt)
+ * [ACS_17_5YR_DP05_with_ann.csv](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/ACS_17_5YR_DP05_with_ann.csv)
+  * [ACS_17_5YR_B01003.txt](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/ACS_17_5YR_B01003.txt)
+ * [ACS_17_5YR_B01003_with_ann.csv](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/ACS_17_5YR_B01003_with_ann.csv)
+ 
 
 [GeoJson](https://github.com/PublicaMundi/MappingAPI/blob/master/data/geojson/us-states.json)
 * [us-states.json](https://github.com/stibbs1998/admissions_internship/blob/master/data/external/us-states.json)
