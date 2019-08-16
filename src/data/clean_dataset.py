@@ -136,6 +136,7 @@ df['Home_Long'] = df['Unique_student_ID'].map(mapper_long)
 # Get Freshman Enrollemnt (if available) for these colleges 
 
 enroll = pd.read_csv('../../data/processed/Enrollment.csv')
+enroll['instituion_name'] = enroll['instituion_name'].map(dict(zip(name_mapper['CCBNM'],name_mapper['DAPIP'])))
 
 df['Fresh_enroll'] = df['Ccbnm_for_dist'].map(dict(zip(enroll['instituion_name'],enroll['freshman_enrollment'])))
 
@@ -145,15 +146,32 @@ df['Fresh_enroll'] = df['Ccbnm_for_dist'].map(dict(zip(enroll['instituion_name']
 
 population = pd.read_csv('../../data/processed/county_populations.csv')
 
-population = population.dropna(subset=['Id2','Total'])
+# adjacent_counties = pd.read_csv('../../data/external/county_adjacency.txt',sep='\t',encoding='ISO-8859-1',names=['county','fips','adjacent_county','fips_adjacent_county'])
+# adjacent_counties = adjacent_counties.fillna(method='pad')
+# 
+population = population.dropna(subset=['Id2','Total']) # FIPS County Number | Number of County Residents
+
+# county_population_mapper = {}
+# 
+# for fips in population.Id2:
+# 
+# 	fips_adjacent_counties = adjacent_counties[adjacent_counties['fips']==fips]['fips_adjacent_county']
+# 	surrounding_population = population[population.Id2.isin(fips_adjacent_counties)]['Total'].sum()	
+# 	county_population_mapper[fips] = surrounding_population
 
 mapper_county = dict(zip(new_df.Ccbnm_for_dist,new_df.COUNTYCD))
 
-df['CollegeTown_pop'] = df['Ccbnm_for_dist'].map(mapper_county)
+# df['CollegeTown_pop'] = df['Ccbnm_for_dist'].map(mapper_county)
+# df['CollegeTown_pop'] = df['CollegeTown_pop'].map(population.Id2,population.Total)
 
-df['CollegeTown_pop'] = df['CollegeTown_pop'].map(dict(zip(population.Id2,population.Total)))
+df['County_perm_res_pop'] = df['County_perm_res'].map(dict(zip(population.Real_FIPS,population.Id2))) 
+df['County_perm_res_pop'] = df['County_perm_res_pop'].map(population.Id2,population.Total)
 
-df['County_perm_res_pop'] = df['County_perm_res'].map(dict(zip(population.Real_FIPS,population.Total)))
+#################################################################
+#################################################################
+
+# Convert COA to numeric
+df['COA'] = df['COA'].replace('[\$,]', '', regex=True).astype(float)
 
 #################################################################
 #################################################################

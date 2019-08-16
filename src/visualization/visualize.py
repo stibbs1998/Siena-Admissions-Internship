@@ -186,3 +186,55 @@ def pca_results(scaled, pca):
 
 	# Return a concatenated DataFrame
 	return pd.concat([variance_ratios, components], axis = 1)
+
+
+def biplot(data, scaled, pca):
+    
+	"""
+
+	Create a biplot of the data.
+	-----------------------------------------------------------
+	# Parameters:
+    
+    # data (pd.DataFrame): The original data.
+
+	# scaled (pd.DataFrame): The DataFrame in which we are performing PCA on, scaled
+	down using sklearn.preprocessing.scale():
+
+	from sklearn.preprocessing import scale
+	scaled = pd.DataFrame(scale(data))
+
+	Where `data` is the original DataFrame.
+
+	# pca: The sklearn.decomposition.PCA() object, which has been fitted to the 
+	scaled down DataFrame:
+
+	pca = PCA(**args).fit(scaled)    
+
+	"""
+    
+	pca = PCA(n_components=2).fit(scaled)
+	reduced_data = pca.transform(scaled)
+    
+	pca_samples = pca.transform(scaled)
+	reduced_data = pd.DataFrame(reduced_data, columns = ['Dimension 1', 'Dimension 2'])
+    
+	fig, ax = plt.subplots(figsize = (14,8))
+    
+    # scatterplot of the reduced data 
+	ax.scatter(x=reduced_data.loc[:, 'Dimension 1'], y=reduced_data.loc[:, 'Dimension 2'], facecolors='b', edgecolors='b', s=70, alpha=0.5)
+    
+	feature_vectors = pca.components_.T
+
+    # using scaling factors to make the arrows
+	arrow_size, text_pos = 7.0, 8.0,
+
+    # projections of the original features
+	for i, v in enumerate(feature_vectors):
+		ax.arrow(0, 0, arrow_size*v[0], arrow_size*v[1], head_width=0.2, head_length=0.2, linewidth=2, color='red')
+		ax.text(v[0]*text_pos, v[1]*text_pos, data.columns[i], color='black', ha='center', va='center', fontsize=18)
+
+	ax.set_xlabel("Dimension 1", fontsize=14)
+	ax.set_ylabel("Dimension 2", fontsize=14)
+	ax.set_title("PC plane with original feature projections.", fontsize=16);
+	return ax
